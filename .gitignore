@@ -39,4 +39,4 @@ vignettes/*.pdf
 .Renviron
 
 # Ignore audio datasets
-datasets
+datasets/*
