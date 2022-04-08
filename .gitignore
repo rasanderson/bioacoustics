@@ -40,3 +40,4 @@ vignettes/*.pdf
 
 # Ignore audio datasets
 datasets/*
+SpeechCommands/*
