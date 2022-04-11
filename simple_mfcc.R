@@ -42,10 +42,15 @@ file.remove(paste0(SONG_DIR, "wren/", unwanted_mp3))
 blackbird_wav <- readWave(paste0(SONG_DIR, "blackbird/Turdus-merula-243908.wav"))
 blackbird_wav
 oscillo(blackbird_wav)
+wren_wav <- readWave(paste0(SONG_DIR, "wren/Troglodytes-troglodytes-642879.wav"))
+wren_wav
+oscillo(wren_wav)
 
 SpectrogramSingle(sound.file = paste0(SONG_DIR, "/blackbird/Turdus-merula-243908.wav"),
                   Colors = "Colors")
 
+SpectrogramSingle(sound.file = paste0(SONG_DIR, "/wren/Troglodytes-troglodytes-642879.wav"),
+                  Colors = "Colors")
 
 # Copy files into a single folder
 dir.create(file.path(paste0(SONG_DIR, "for_analysis")), recursive = TRUE)
