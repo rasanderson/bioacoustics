@@ -114,3 +114,11 @@ birds_rf <- randomForest(y=as.factor(birds_grps_train), x = birds_mfcc_train,
                          ntree = 100,
                          ytest=as.factor(birds_grps_valid), xtest=birds_mfcc_valid)
 print(birds_rf)
+
+# Now try and overlay (mix) some songs. May need them all the same length
+wren5      <- cutw(wren_wav, from=1, to=6, output="Wave")
+blackbird5 <- cutw(blackbird_wav, from=1, to=6, output="Wave")
+blackbird5_44100 <- resamp(blackbird5, g = 44100, output="Wave")
+both5 <- Wave((blackbird5_44100@left + wren5@left), samp.rate = 44100, bit = 16)
+
+
