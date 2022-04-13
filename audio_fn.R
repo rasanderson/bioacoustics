@@ -115,15 +115,14 @@ rnd_mix <- function(input.dir1, input.dir2, input.dir3,
                                                               g = samp.rate,
                                                               output = "Wave"))
   subsamp1_dur <- unlist(lapply(1:length(rnd_list1), function(i) duration(subsamp1[[i]])))
-  subsamp_rnd_start <- runif(5, min=0, max=unlist(subsamp1_dur)-n.sec)
+  subsamp1_rnd_start <- runif(5, min=0, max=unlist(subsamp1_dur)-n.sec)
   for(j in 1:length(rnd_list1)){
     if(subsamp1_dur[[j]] <= n.sec)
       stop("Duration length to long for cutting")
-    
   }
   subsamp1 <- lapply(1:length(rnd_list1), function(i) cutw(subsamp1[[i]],
-                                                           from=subsamp_rnd_start[i],
-                                                           to=subsamp_rnd_start[i]+n.sec,
+                                                           from=subsamp1_rnd_start[i],
+                                                           to=subsamp1_rnd_start[i]+n.sec,
                                                            output="Wave"))
   
 }
