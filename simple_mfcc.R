@@ -96,7 +96,7 @@ ggplot(bird_sco, aes(x=PC1, y=PC2, colour=group_code)) +
   geom_point()
 
 # knn classification
-library(class)
+library(randomForest)
 library(splitTools)
 set.seed(123)
 inds <- partition(1:nrow(birds_mfcc), p=c(train = 0.7, valid = 0.3)) # test optional
@@ -110,8 +110,7 @@ birds_grps_valid <- group_code[inds$valid]
 birds_mfcc_train <- scale(birds_mfcc_train)
 birds_mfcc_valid <- scale(birds_mfcc_valid)
 
-birds_knn <- knn(birds_mfcc_train, birds_mfcc_valid,  cl=birds_grps_train, k = 15, prob = TRUE)
-tab <- table(birds_knn, birds_grps_valid)
-tab
-accuracy <- function(x){sum(diag(x)/(sum(rowSums(x)))) * 100}
-accuracy(tab)
+birds_rf <- randomForest(y=as.factor(birds_grps_train), x = birds_mfcc_train,
+                         ntree = 100,
+                         ytest=as.factor(birds_grps_valid), xtest=birds_mfcc_valid)
+print(birds_rf)
