@@ -2,14 +2,16 @@
 
 # devtools::install_github("https://github.com/DenaJGibbon/behaviouR")
 # 
-library(behaviouR)
-# library(tuneR)
+#library(behaviouR)
+library(tuneR)
 library(seewave)
 library(ggplot2)
 library(dplyr)
 library(warbleR)
 library(stringi)
+library(stringr)
 library(vegan)
+source("audio_fn.R")
 
 SONG_DIR <- "datasets/xeno_canto/"
 
@@ -42,15 +44,12 @@ file.remove(paste0(SONG_DIR, "wren/", unwanted_mp3))
 blackbird_wav <- readWave(paste0(SONG_DIR, "blackbird/Turdus-merula-243908.wav"))
 blackbird_wav
 oscillo(blackbird_wav)
+my_spec(sound.wav = blackbird_wav, Colors = "Colors")
 wren_wav <- readWave(paste0(SONG_DIR, "wren/Troglodytes-troglodytes-642879.wav"))
 wren_wav
 oscillo(wren_wav)
+my_spec(sound.wav = wren_wav, Colors = "Colors", main = "Wren", max.freq=10000)
 
-SpectrogramSingle(sound.file = paste0(SONG_DIR, "/blackbird/Turdus-merula-243908.wav"),
-                  Colors = "Colors")
-
-SpectrogramSingle(sound.file = paste0(SONG_DIR, "/wren/Troglodytes-troglodytes-642879.wav"),
-                  Colors = "Colors")
 
 # Copy files into a single folder
 dir.create(file.path(paste0(SONG_DIR, "for_analysis")), recursive = TRUE)
@@ -68,6 +67,25 @@ file.copy(from=paste0(paste0(SONG_DIR, "wren/"),
 # MFCC analysis
 birds_mfcc <- MFCCFunction(input.dir = paste0(SONG_DIR, "for_analysis"),
                                max.freq=8000)
+# Remove any NaNs (usually silence in a broken recording)
+birds_mfcc <- birds_mfcc[!is.nan(rowSums(birds_mfcc[,-1])),]
+
+birds_pca <- rda(birds_mfcc[, -1], scale = TRUE)
+head(summary(birds_pca))
+bird_sco <- data.frame(scores(birds_pca, display="sites"))
+bird_sco <- mutate(bird_sco, group_code = str_sub(birds_mfcc[, 1],
+                                                  1, as.vector(regexpr("\\-[^\\-]*$",
+                                                                       birds_mfcc[, 1]))-1))       
+ggplot(bird_sco, aes(x=PC1, y=PC2, colour=group_code)) +
+  geom_point()
+
+
+# Compare with d and dd
+birds_mfcc <- my_mfcc(input.dir = paste0(SONG_DIR, "for_analysis"),
+                           max.freq=8000)
+# Remove any NaNs (usually silence in a broken recording)
+birds_mfcc <- birds_mfcc[!is.nan(rowSums(birds_mfcc[,-1])),]
+
 birds_pca <- rda(birds_mfcc[, -1], scale = TRUE)
 head(summary(birds_pca))
 bird_sco <- data.frame(scores(birds_pca, display="sites"))
