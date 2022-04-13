@@ -95,3 +95,23 @@ bird_sco <- mutate(bird_sco, group_code = str_sub(birds_mfcc[, 1],
 ggplot(bird_sco, aes(x=PC1, y=PC2, colour=group_code)) +
   geom_point()
 
+# knn classification
+library(class)
+library(splitTools)
+set.seed(123)
+inds <- partition(1:nrow(birds_mfcc), p=c(train = 0.7, valid = 0.3)) # test optional
+group_code <- str_sub(birds_mfcc[, 1],1, as.vector(regexpr("\\-[^\\-]*$", birds_mfcc[, 1]))-1)
+birds_mfcc_train <- birds_mfcc[inds$train, -1]
+birds_grps_train <- group_code[inds$train]
+birds_mfcc_valid <- birds_mfcc[inds$valid, -1]
+birds_grps_valid <- group_code[inds$valid]
+
+# May want to compare with normalised
+birds_mfcc_train <- scale(birds_mfcc_train)
+birds_mfcc_valid <- scale(birds_mfcc_valid)
+
+birds_knn <- knn(birds_mfcc_train, birds_mfcc_valid,  cl=birds_grps_train, k = 15, prob = TRUE)
+tab <- table(birds_knn, birds_grps_valid)
+tab
+accuracy <- function(x){sum(diag(x)/(sum(rowSums(x)))) * 100}
+accuracy(tab)
