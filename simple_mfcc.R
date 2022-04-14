@@ -115,10 +115,19 @@ birds_rf <- randomForest(y=as.factor(birds_grps_train), x = birds_mfcc_train,
                          ytest=as.factor(birds_grps_valid), xtest=birds_mfcc_valid)
 print(birds_rf)
 
-# Now try and overlay (mix) some songs. May need them all the same length
-wren5      <- cutw(wren_wav, from=1, to=6, output="Wave")
-blackbird5 <- cutw(blackbird_wav, from=1, to=6, output="Wave")
-blackbird5_44100 <- resamp(blackbird5, g = 44100, output="Wave")
-both5 <- Wave((blackbird5_44100@left + wren5@left), samp.rate = 44100, bit = 16)
 
+# Create .wav files with one, two or three calls
+input.dir1 <- paste0(SONG_DIR, "blackbird")
+input.dir2 <- paste0(SONG_DIR, "chiffchaff")
+input.dir3 <- paste0(SONG_DIR, "wren")
+seed=123
+nrand.in=5
+output.dir1 <- paste0(SONG_DIR, "one")
+output.dir2 <- paste0(SONG_DIR, "two")
+output.dir3 <- paste0(SONG_DIR, "three")
+n.sec <- 5
+samp.rate <- 44100
+rnd_mix(input.dir1=input.dir1, input.dir2=input.dir2, input.dir3=input.dir3,
+        output.dir1=output.dir1, output.dir2=output.dir2, output.dir3=output.dir3,
+        n.sec=5, nrand.in=5)
 

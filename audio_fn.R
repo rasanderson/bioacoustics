@@ -62,17 +62,6 @@ my_spec <- function (sound.wav, min.freq = 500, max.freq = 8000, Colors = "Color
   }
 }
 
-# for debugging rnd_mix function
-input.dir1 <- paste0(SONG_DIR, "blackbird")
-input.dir2 <- paste0(SONG_DIR, "chiffchaff")
-input.dir3 <- paste0(SONG_DIR, "wren")
-seed=123
-nrand.in=5
-output.dir1 <- paste0(SONG_DIR, "one")
-output.dir2 <- paste0(SONG_DIR, "two")
-output.dir3 <- paste0(SONG_DIR, "three")
-n.sec <- 5
-samp.rate <- 44100
 
 # Need to adapt resamp to avoid error being thrown if new samp freq unchanged
 my_resamp <- function (wave, f, g, channel = 1, output = "matrix") 
