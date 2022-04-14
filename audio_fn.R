@@ -100,20 +100,20 @@ my_resamp <- function (wave, f, g, channel = 1, output = "matrix")
 rand_wav <- function(wav_list, samp.rate, n.sec, nrand.in) {
   # Randomly get single samples at samp.rate, and cut out a n.sec chunk
   rnd_list <- wav_list[sample(length(wav_list), nrand.in)]
-  subsamp <- lapply(1:length(rnd_list), function(i) readWave(rnd_list[[i]]))
-  subsamp <- lapply(1:length(rnd_list), function(i) my_resamp(subsamp[[i]],
-                                                                g = samp.rate,
-                                                                output = "Wave"))
-  subsamp_dur <- unlist(lapply(1:length(rnd_list), function(i) duration(subsamp[[i]])))
-  subsamp_rnd_start <- runif(length(rnd_list), min=0, max=unlist(subsamp1_dur)-n.sec)
-  for(j in 1:length(rnd_list)){
+  subsamp <- lapply(1:nrand.in, function(i) readWave(rnd_list[[i]]))
+  subsamp <- lapply(1:nrand.in, function(i) my_resamp(subsamp[[i]],
+                                                      g = samp.rate,
+                                                      output = "Wave"))
+  subsamp_dur <- unlist(lapply(1:nrand.in, function(i) duration(subsamp[[i]])))
+  subsamp_rnd_start <- runif(nrand.in, min=0, max=subsamp_dur-n.sec)
+  for(j in 1:nrand.in){
     if(subsamp_dur[[j]] <= n.sec)
       stop("Duration length to long for cutting")
   }
-  subsamp <- lapply(1:length(rnd_list), function(i) cutw(subsamp[[i]],
-                                                         from=subsamp_rnd_start[i],
-                                                         to=subsamp_rnd_start[i]+n.sec,
-                                                         output="Wave"))
+  subsamp <- lapply(1:nrand.in, function(i) cutw(subsamp[[i]],
+                                                 from = subsamp_rnd_start[i],
+                                                 to = subsamp_rnd_start[i] + n.sec,
+                                                 output = "Wave"))
 }
 
 
@@ -125,9 +125,31 @@ rnd_mix <- function(input.dir1, input.dir2, input.dir3,
   wav_list2 <- list.files(input.dir2, full.names = T, pattern = ".wav")
   wav_list3 <- list.files(input.dir3, full.names = T, pattern = ".wav")
   
-  # Random 5 second samples of single spp call
-  wav_samp1 <- rand_wav(wav_list1, samp.rate, n.sec, nrand.in)
-  wav_samp2 <- rand_wav(wav_list2, samp.rate, n.sec, nrand.in)
-  wav_samp3 <- rand_wav(wav_list3, samp.rate, n.sec, nrand.in)
+  # Random samples n.sec duration of single spp call
+  wav_samp_spp_a <- rand_wav(wav_list1, samp.rate, n.sec, nrand.in)
+  wav_samp_spp_b <- rand_wav(wav_list2, samp.rate, n.sec, nrand.in)
+  wav_samp_spp_c <- rand_wav(wav_list3, samp.rate, n.sec, nrand.in)
+  # TODO write out the random single spp .wav files
+  
+  # Random samples n.sec duration for mixing into two spp calls
+  wav_samp_spp_a <- rand_wav(wav_list1, samp.rate, n.sec, nrand.in)
+  wav_samp_spp_b <- rand_wav(wav_list2, samp.rate, n.sec, nrand.in)
+  wav_samp_spp_c <- rand_wav(wav_list3, samp.rate, n.sec, nrand.in)
+
+  rnd_spp_a_id <- sample(nrand.in, size = nrand.in)
+  rnd_spp_b_id <- sample(nrand.in, size = nrand.in)
+  rnd_spp_c_id <- sample(nrand.in, size = nrand.in)
+  mix_ab <- lapply(1:nrand.in, function(i) Wave((wav_samp_spp_a[[i]]@left +
+                                                   wav_samp_spp_b[[i]]@left),
+                                                 samp.rate = samp.rate,
+                                                 bit = 16))
+  mix_ac <- lapply(1:nrand.in, function(i) Wave((wav_samp_spp_a[[i]]@left +
+                                                   wav_samp_spp_c[[i]]@left),
+                                                samp.rate = samp.rate,
+                                                bit = 16))
+  mix_bc <- lapply(1:nrand.in, function(i) Wave((wav_samp_spp_b[[i]]@left +
+                                                   wav_samp_spp_c[[i]]@left),
+                                                samp.rate = samp.rate,
+                                                bit = 16))
   
 }
