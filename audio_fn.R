@@ -129,9 +129,9 @@ rnd_mix <- function(input.dir1, input.dir2, input.dir3,
   wav_samp_spp_a <- rand_wav(wav_list1, samp.rate, n.sec, nrand.in)
   wav_samp_spp_b <- rand_wav(wav_list2, samp.rate, n.sec, nrand.in)
   wav_samp_spp_c <- rand_wav(wav_list3, samp.rate, n.sec, nrand.in)
-  wav_samp_spp_a <- lapply(1:(nrand.in * 3), function(i) normalize(wav_samp_spp_a[[i]], unit = "16"))
-  wav_samp_spp_b <- lapply(1:(nrand.in * 3), function(i) normalize(wav_samp_spp_b[[i]], unit = "16"))
-  wav_samp_spp_c <- lapply(1:(nrand.in * 3), function(i) normalize(wav_samp_spp_c[[i]], unit = "16"))
+  wav_samp_spp_a <- lapply(1:nrand.in, function(i) normalize(wav_samp_spp_a[[i]], unit = "16"))
+  wav_samp_spp_b <- lapply(1:nrand.in, function(i) normalize(wav_samp_spp_b[[i]], unit = "16"))
+  wav_samp_spp_c <- lapply(1:nrand.in, function(i) normalize(wav_samp_spp_c[[i]], unit = "16"))
   dir.create(file.path(output.dir1), recursive = TRUE)
   for(i in 1:nrand.in){
     writeWave(wav_samp_spp_a[[i]], paste0(output.dir1, "/a_", i, ".wav"))
@@ -146,9 +146,9 @@ rnd_mix <- function(input.dir1, input.dir2, input.dir3,
   rnd_spp_a_id <- sample(nrand.in, size = nrand.in)
   rnd_spp_b_id <- sample(nrand.in, size = nrand.in)
   rnd_spp_c_id <- sample(nrand.in, size = nrand.in)
-  wav_samp_spp_a <- lapply(1:(nrand.in * 3), function(i) normalize(wav_samp_spp_a[[i]], unit = "16"))
-  wav_samp_spp_b <- lapply(1:(nrand.in * 3), function(i) normalize(wav_samp_spp_b[[i]], unit = "16"))
-  wav_samp_spp_c <- lapply(1:(nrand.in * 3), function(i) normalize(wav_samp_spp_c[[i]], unit = "16"))
+  wav_samp_spp_a <- lapply(1:nrand.in, function(i) normalize(wav_samp_spp_a[[i]], unit = "16"))
+  wav_samp_spp_b <- lapply(1:nrand.in, function(i) normalize(wav_samp_spp_b[[i]], unit = "16"))
+  wav_samp_spp_c <- lapply(1:nrand.in, function(i) normalize(wav_samp_spp_c[[i]], unit = "16"))
   mix_ab <- lapply(1:nrand.in, function(i) normalize(Wave((wav_samp_spp_a[[i]]@left +
                                                    wav_samp_spp_b[[i]]@left),
                                                  samp.rate = samp.rate,
@@ -190,7 +190,6 @@ rnd_mix <- function(input.dir1, input.dir2, input.dir3,
                                                 ))
   dir.create(file.path(output.dir3), recursive = TRUE)
   for(i in 1:(nrand.in * 3)){
-    print(i)
     writeWave(mix_abc[[i]], paste0(output.dir3, "/abc_", i, ".wav"))
   }
   
