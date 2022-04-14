@@ -68,9 +68,9 @@ input.dir2 <- paste0(SONG_DIR, "chiffchaff")
 input.dir3 <- paste0(SONG_DIR, "wren")
 seed=123
 nrand.in=5
-output.dir1 <- "one"
-output.dir2 <- "two"
-output.dir3 <- "three"
+output.dir1 <- paste0(SONG_DIR, "one")
+output.dir2 <- paste0(SONG_DIR, "two")
+output.dir3 <- paste0(SONG_DIR, "three")
 n.sec <- 5
 samp.rate <- 44100
 
@@ -129,46 +129,69 @@ rnd_mix <- function(input.dir1, input.dir2, input.dir3,
   wav_samp_spp_a <- rand_wav(wav_list1, samp.rate, n.sec, nrand.in)
   wav_samp_spp_b <- rand_wav(wav_list2, samp.rate, n.sec, nrand.in)
   wav_samp_spp_c <- rand_wav(wav_list3, samp.rate, n.sec, nrand.in)
-  print("done one")
-  # TODO write out the random single spp .wav files
+  wav_samp_spp_a <- lapply(1:(nrand.in * 3), function(i) normalize(wav_samp_spp_a[[i]], unit = "16"))
+  wav_samp_spp_b <- lapply(1:(nrand.in * 3), function(i) normalize(wav_samp_spp_b[[i]], unit = "16"))
+  wav_samp_spp_c <- lapply(1:(nrand.in * 3), function(i) normalize(wav_samp_spp_c[[i]], unit = "16"))
+  dir.create(file.path(output.dir1), recursive = TRUE)
+  for(i in 1:nrand.in){
+    writeWave(wav_samp_spp_a[[i]], paste0(output.dir1, "/a_", i, ".wav"))
+    writeWave(wav_samp_spp_b[[i]], paste0(output.dir1, "/b_", i, ".wav"))
+    writeWave(wav_samp_spp_c[[i]], paste0(output.dir1, "/c_", i, ".wav"))
+  }
   
   # Random samples n.sec duration for mixing into two spp calls
   wav_samp_spp_a <- rand_wav(wav_list1, samp.rate, n.sec, nrand.in)
   wav_samp_spp_b <- rand_wav(wav_list2, samp.rate, n.sec, nrand.in)
   wav_samp_spp_c <- rand_wav(wav_list3, samp.rate, n.sec, nrand.in)
-
   rnd_spp_a_id <- sample(nrand.in, size = nrand.in)
   rnd_spp_b_id <- sample(nrand.in, size = nrand.in)
   rnd_spp_c_id <- sample(nrand.in, size = nrand.in)
-  mix_ab <- lapply(1:nrand.in, function(i) Wave((wav_samp_spp_a[[i]]@left +
+  wav_samp_spp_a <- lapply(1:(nrand.in * 3), function(i) normalize(wav_samp_spp_a[[i]], unit = "16"))
+  wav_samp_spp_b <- lapply(1:(nrand.in * 3), function(i) normalize(wav_samp_spp_b[[i]], unit = "16"))
+  wav_samp_spp_c <- lapply(1:(nrand.in * 3), function(i) normalize(wav_samp_spp_c[[i]], unit = "16"))
+  mix_ab <- lapply(1:nrand.in, function(i) normalize(Wave((wav_samp_spp_a[[i]]@left +
                                                    wav_samp_spp_b[[i]]@left),
                                                  samp.rate = samp.rate,
-                                                 bit = 16))
-  mix_ac <- lapply(1:nrand.in, function(i) Wave((wav_samp_spp_a[[i]]@left +
+                                                 bit = 16),
+                                                 unit = "16"))
+  mix_ac <- lapply(1:nrand.in, function(i) normalize(Wave((wav_samp_spp_a[[i]]@left +
                                                    wav_samp_spp_c[[i]]@left),
                                                 samp.rate = samp.rate,
-                                                bit = 16))
-  mix_bc <- lapply(1:nrand.in, function(i) Wave((wav_samp_spp_b[[i]]@left +
+                                                bit = 16),
+                                                unit = "16"))
+  mix_bc <- lapply(1:nrand.in, function(i) normalize(Wave((wav_samp_spp_b[[i]]@left +
                                                    wav_samp_spp_c[[i]]@left),
                                                 samp.rate = samp.rate,
-                                                bit = 16))
-  print("done two")
-  # TODO write pairwise mixes to file
+                                                bit = 16),
+                                                unit = "16"))
+  dir.create(file.path(output.dir2), recursive = TRUE)
+  for(i in 1:nrand.in){
+    writeWave(mix_ab[[i]], paste0(output.dir2, "/ab_", i, ".wav"))
+    writeWave(mix_ac[[i]], paste0(output.dir2, "/ac_", i, ".wav"))
+    writeWave(mix_bc[[i]], paste0(output.dir2, "/bc_", i, ".wav"))
+  }
   
   # Random samples n.sec duration for mixing into three spp calls
   wav_samp_spp_a <- rand_wav(wav_list1, samp.rate, n.sec, nrand.in * 3)
   wav_samp_spp_b <- rand_wav(wav_list2, samp.rate, n.sec, nrand.in * 3)
   wav_samp_spp_c <- rand_wav(wav_list3, samp.rate, n.sec, nrand.in * 3)
-  
+  wav_samp_spp_a <- lapply(1:(nrand.in * 3), function(i) normalize(wav_samp_spp_a[[i]], unit = "16"))
+  wav_samp_spp_b <- lapply(1:(nrand.in * 3), function(i) normalize(wav_samp_spp_b[[i]], unit = "16"))
+  wav_samp_spp_c <- lapply(1:(nrand.in * 3), function(i) normalize(wav_samp_spp_c[[i]], unit = "16"))
   rnd_spp_a_id <- sample(nrand.in * 3, size = nrand.in * 3)
   rnd_spp_b_id <- sample(nrand.in * 3, size = nrand.in * 3)
   rnd_spp_c_id <- sample(nrand.in * 3, size = nrand.in * 3)
-  mix_abc <- lapply(1:(nrand.in * 3), function(i) Wave((wav_samp_spp_a[[i]]@left +
+  mix_abc <- lapply(1:(nrand.in * 3), function(i) normalize(Wave((wav_samp_spp_a[[i]]@left +
                                                    wav_samp_spp_b[[i]]@left) +
                                                    wav_samp_spp_c[[i]]@left,
                                                 samp.rate = samp.rate,
-                                                bit = 16))
-  print("done three")
-  # TODO write three-way mix to file
-
+                                                bit = 16),
+                                                unit = "16"
+                                                ))
+  dir.create(file.path(output.dir3), recursive = TRUE)
+  for(i in 1:(nrand.in * 3)){
+    print(i)
+    writeWave(mix_abc[[i]], paste0(output.dir3, "/abc_", i, ".wav"))
+  }
+  
 }
