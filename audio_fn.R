@@ -154,14 +154,14 @@ rnd_mix <- function(input.dir1, input.dir2, input.dir3,
   # TODO write pairwise mixes to file
   
   # Random samples n.sec duration for mixing into three spp calls
-  wav_samp_spp_a <- rand_wav(wav_list1, samp.rate, n.sec, nrand.in)
-  wav_samp_spp_b <- rand_wav(wav_list2, samp.rate, n.sec, nrand.in)
-  wav_samp_spp_c <- rand_wav(wav_list3, samp.rate, n.sec, nrand.in)
+  wav_samp_spp_a <- rand_wav(wav_list1, samp.rate, n.sec, nrand.in * 3)
+  wav_samp_spp_b <- rand_wav(wav_list2, samp.rate, n.sec, nrand.in * 3)
+  wav_samp_spp_c <- rand_wav(wav_list3, samp.rate, n.sec, nrand.in * 3)
   
-  rnd_spp_a_id <- sample(nrand.in, size = nrand.in)
-  rnd_spp_b_id <- sample(nrand.in, size = nrand.in)
-  rnd_spp_c_id <- sample(nrand.in, size = nrand.in)
-  mix_abc <- lapply(1:nrand.in, function(i) Wave((wav_samp_spp_a[[i]]@left +
+  rnd_spp_a_id <- sample(nrand.in * 3, size = nrand.in * 3)
+  rnd_spp_b_id <- sample(nrand.in * 3, size = nrand.in * 3)
+  rnd_spp_c_id <- sample(nrand.in * 3, size = nrand.in * 3)
+  mix_abc <- lapply(1:(nrand.in * 3), function(i) Wave((wav_samp_spp_a[[i]]@left +
                                                    wav_samp_spp_b[[i]]@left) +
                                                    wav_samp_spp_c[[i]]@left,
                                                 samp.rate = samp.rate,
