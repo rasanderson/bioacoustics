@@ -121,7 +121,7 @@ input.dir1 <- paste0(SONG_DIR, "blackbird")
 input.dir2 <- paste0(SONG_DIR, "chiffchaff")
 input.dir3 <- paste0(SONG_DIR, "wren")
 seed=123
-nrand.in=5
+nrand.in=100
 output.dir1 <- paste0(SONG_DIR, "one")
 output.dir2 <- paste0(SONG_DIR, "two")
 output.dir3 <- paste0(SONG_DIR, "three")
@@ -129,5 +129,49 @@ n.sec <- 5
 samp.rate <- 44100
 rnd_mix(input.dir1=input.dir1, input.dir2=input.dir2, input.dir3=input.dir3,
         output.dir1=output.dir1, output.dir2=output.dir2, output.dir3=output.dir3,
-        n.sec=5, nrand.in=5)
+        n.sec=5, nrand.in=nrand.in)
 
+# Copy mixture files into single folder for mfcc
+dir.create(file.path(paste0(SONG_DIR, "mixture")), recursive = TRUE)
+file.copy(from=paste0(paste0(SONG_DIR, "one/"),
+                      list.files(paste0(SONG_DIR, "one"))),
+          to=paste0(SONG_DIR, "mixture"))
+file.copy(from=paste0(paste0(SONG_DIR, "two/"),
+                      list.files(paste0(SONG_DIR, "two"))),
+          to=paste0(SONG_DIR, "mixture"))
+file.copy(from=paste0(paste0(SONG_DIR, "three/"),
+                      list.files(paste0(SONG_DIR, "three"))),
+          to=paste0(SONG_DIR, "mixture"))
+
+# MFCC on mixture
+mix_mfcc <- my_mfcc(input.dir = paste0(SONG_DIR, "mixture"),
+                      max.freq=8000)
+# Remove any NaNs (usually silence in a broken recording)
+mix_mfcc <- mix_mfcc[!is.nan(rowSums(mix_mfcc[,-1])),]
+
+# Setup MFCC mixture for Random Forest
+set.seed(123)
+inds <- partition(1:nrow(mix_mfcc), p=c(train = 0.7, valid = 0.3)) # test optional
+n_char <- nchar(mix_mfcc[, 1])
+group_code <- NULL
+for(i in 1:length(n_char)){
+  if(n_char[i] == 1)
+    group_code <- c(group_code, "one")
+  if(n_char[i] == 2)
+    group_code <- c(group_code, "two")
+  if(n_char[i] == 3)
+    group_code <- c(group_code, "three")
+}
+mix_mfcc_train <- mix_mfcc[inds$train, -1]
+mix_grps_train <- factor(group_code[inds$train], levels = c("one", "two", "three"))
+mix_mfcc_valid <- mix_mfcc[inds$valid, -1]
+mix_grps_valid <- factor(group_code[inds$valid], levels = c("one", "two", "three"))
+
+# Run the random forest
+mix_mfcc_train <- scale(mix_mfcc_train) # do we need to rescale??
+mix_mfcc_valid <- scale(mix_mfcc_valid)
+
+mix_rf <- randomForest(y=as.factor(mix_grps_train), x = mix_mfcc_train,
+                         ntree = 100,
+                         ytest=as.factor(mix_grps_valid), xtest=mix_mfcc_valid)
+print(mix_rf)

@@ -86,9 +86,9 @@ my_resamp <- function (wave, f, g, channel = 1, output = "matrix")
   return(wave1)
 }
 
-rand_wav <- function(wav_list, samp.rate, n.sec, nrand.in) {
+rand_wav <- function(wav_list, samp.rate, n.sec, nrand.in, replace = FALSE) {
   # Randomly get single samples at samp.rate, and cut out a n.sec chunk
-  rnd_list <- wav_list[sample(length(wav_list), nrand.in)]
+  rnd_list <- wav_list[sample(length(wav_list), nrand.in, replace = replace)]
   subsamp <- lapply(1:nrand.in, function(i) readWave(rnd_list[[i]]))
   subsamp <- lapply(1:nrand.in, function(i) my_resamp(subsamp[[i]],
                                                       g = samp.rate,
@@ -161,9 +161,9 @@ rnd_mix <- function(input.dir1, input.dir2, input.dir3,
   }
   
   # Random samples n.sec duration for mixing into three spp calls
-  wav_samp_spp_a <- rand_wav(wav_list1, samp.rate, n.sec, nrand.in * 3)
-  wav_samp_spp_b <- rand_wav(wav_list2, samp.rate, n.sec, nrand.in * 3)
-  wav_samp_spp_c <- rand_wav(wav_list3, samp.rate, n.sec, nrand.in * 3)
+  wav_samp_spp_a <- rand_wav(wav_list1, samp.rate, n.sec, nrand.in * 3, replace = TRUE)
+  wav_samp_spp_b <- rand_wav(wav_list2, samp.rate, n.sec, nrand.in * 3, replace = TRUE)
+  wav_samp_spp_c <- rand_wav(wav_list3, samp.rate, n.sec, nrand.in * 3, replace = TRUE)
   wav_samp_spp_a <- lapply(1:(nrand.in * 3), function(i) normalize(wav_samp_spp_a[[i]], unit = "16"))
   wav_samp_spp_b <- lapply(1:(nrand.in * 3), function(i) normalize(wav_samp_spp_b[[i]], unit = "16"))
   wav_samp_spp_c <- lapply(1:(nrand.in * 3), function(i) normalize(wav_samp_spp_c[[i]], unit = "16"))
