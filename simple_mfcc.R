@@ -15,69 +15,72 @@ source("audio_fn.R")
 
 SONG_DIR <- "datasets/xeno_canto/"
 
-blackbird <- query_xc(qword = 'Turdus merula type:song len:5-25', download = FALSE)
-chiffchaff <- query_xc(qword = 'Phylloscopus collybita cnt:"united kingdom" len:5-25', download = FALSE)
-wren      <- query_xc(qword = 'Troglodytes troglodytes type:song len:5-25', download = FALSE)
+sppA_name <- "Turdus merula"
+sppB_name <- "Phylloscopus collybita"
+sppC_name <- "Troglodytes troglodytes"
+sppA <- query_xc(qword = paste(sppA_name, ' type:song len:5-25'), download = FALSE)
+sppB <- query_xc(qword = paste(sppB_name, ' cnt:"united kingdom" len:5-25'), download = FALSE)
+sppC <- query_xc(qword = paste(sppC_name, ' type:song len:5-25'), download = FALSE)
 
 # Create subfolders in your RStudio Project for song calls and alarm calls
-dir.create(file.path(paste0(SONG_DIR, "blackbird")), recursive = TRUE)
-dir.create(file.path(paste0(SONG_DIR, "chiffchaff")), recursive = TRUE)
-dir.create(file.path(paste0(SONG_DIR, "wren")), recursive = TRUE)
+dir.create(file.path(paste0(SONG_DIR, sppA_name)), recursive = TRUE)
+dir.create(file.path(paste0(SONG_DIR, sppB_name)), recursive = TRUE)
+dir.create(file.path(paste0(SONG_DIR, sppC_name)), recursive = TRUE)
 
 # Download the .MP3 files into two separate sub-folders
-query_xc(X = blackbird, path=paste0(SONG_DIR, "blackbird"))
-query_xc(X = chiffchaff, path=paste0(SONG_DIR, "chiffchaff"))
-query_xc(X = wren, path=paste0(SONG_DIR, "wren"))
+query_xc(X = sppA, path=paste0(SONG_DIR, sppA_name))
+query_xc(X = sppB, path=paste0(SONG_DIR, sppB_name))
+query_xc(X = sppC, path=paste0(SONG_DIR, sppC_name))
 
 # If you want to convert to .wav
-mp32wav(path=paste0(SONG_DIR, "blackbird"), dest.path=paste0(SONG_DIR, "blackbird"))
-mp32wav(path=paste0(SONG_DIR, "chiffchaff"), dest.path=paste0(SONG_DIR, "chiffchaff"))
-mp32wav(path=paste0(SONG_DIR, "wren"), dest.path=paste0(SONG_DIR, "wren"))
-unwanted_mp3 <- dir(path=paste0(SONG_DIR, "blackbird"), pattern="*.mp3")
-file.remove(paste0(SONG_DIR, "blackbird/", unwanted_mp3))
-unwanted_mp3 <- dir(path=paste0(SONG_DIR, "chiffchaff"), pattern="*.mp3")
-file.remove(paste0(SONG_DIR, "chiffchaff/", unwanted_mp3))
-unwanted_mp3 <- dir(path=paste0(SONG_DIR, "wren"), pattern="*.mp3")
-file.remove(paste0(SONG_DIR, "wren/", unwanted_mp3))
+mp32wav(path=paste0(SONG_DIR, sppA_name), dest.path=paste0(SONG_DIR, sppA_name))
+mp32wav(path=paste0(SONG_DIR, sppB_name), dest.path=paste0(SONG_DIR, sppB_name))
+mp32wav(path=paste0(SONG_DIR, sppC_name), dest.path=paste0(SONG_DIR, sppC_name))
+unwanted_mp3 <- dir(path=paste0(SONG_DIR, sppA_name), pattern="*.mp3")
+file.remove(paste0(SONG_DIR, sppA_name, "/", unwanted_mp3))
+unwanted_mp3 <- dir(path=paste0(SONG_DIR, sppB_name), pattern="*.mp3")
+file.remove(paste0(SONG_DIR, sppB_name, "/", unwanted_mp3))
+unwanted_mp3 <- dir(path=paste0(SONG_DIR, sppC_name), pattern="*.mp3")
+file.remove(paste0(SONG_DIR, sppC_name, "/", unwanted_mp3))
 
 
-blackbird_wav <- readWave(paste0(SONG_DIR, "blackbird/Turdus-merula-243908.wav"))
-blackbird_wav
-oscillo(blackbird_wav)
-my_spec(sound.wav = blackbird_wav, Colors = "Colors")
-wren_wav <- readWave(paste0(SONG_DIR, "wren/Troglodytes-troglodytes-642879.wav"))
-wren_wav
-oscillo(wren_wav)
-my_spec(sound.wav = wren_wav, Colors = "Colors", main = "Wren", max.freq=10000)
+sppA_wav <- readWave(paste0(SONG_DIR, sppA_name, "/Turdus-merula-243908.wav"))
+sppA_wav
+oscillo(sppA_wav)
+my_spec(sound.wav = sppA_wav, Colors = "Colors", main = sppA_name)
+sppC_wav <- readWave(paste0(SONG_DIR, sppC_name, "/Troglodytes-troglodytes-642879.wav"))
+sppC_wav
+oscillo(sppC_wav)
+my_spec(sound.wav = sppC_wav, Colors = "Colors", main = sppC_name, max.freq=10000)
 
 
 # Copy files into a single folder
 dir.create(file.path(paste0(SONG_DIR, "for_analysis")), recursive = TRUE)
-file.copy(from=paste0(paste0(SONG_DIR, "blackbird/"),
-                      list.files(paste0(SONG_DIR, "blackbird"))),
+file.copy(from=paste0(paste0(SONG_DIR, sppA_name, "/"),
+                      list.files(paste0(SONG_DIR, sppA_name))),
           to=paste0(SONG_DIR, "for_analysis"))
-file.copy(from=paste0(paste0(SONG_DIR, "chiffchaff/"),
-                      list.files(paste0(SONG_DIR, "chiffchaff"))),
+file.copy(from=paste0(paste0(SONG_DIR, sppB_name, "/"),
+                      list.files(paste0(SONG_DIR, sppB_name))),
           to=paste0(SONG_DIR, "for_analysis"))
-file.copy(from=paste0(paste0(SONG_DIR, "wren/"),
-                      list.files(paste0(SONG_DIR, "wren"))),
+file.copy(from=paste0(paste0(SONG_DIR, sppC_name, "/"),
+                      list.files(paste0(SONG_DIR, sppC_name))),
           to=paste0(SONG_DIR, "for_analysis"))
 
 
 # MFCC analysis
-birds_mfcc <- MFCCFunction(input.dir = paste0(SONG_DIR, "for_analysis"),
-                               max.freq=8000)
+# birds_mfcc <- MFCCFunction(input.dir = paste0(SONG_DIR, "for_analysis"),
+#                                max.freq=8000)
 # Remove any NaNs (usually silence in a broken recording)
-birds_mfcc <- birds_mfcc[!is.nan(rowSums(birds_mfcc[,-1])),]
-
-birds_pca <- rda(birds_mfcc[, -1], scale = TRUE)
-head(summary(birds_pca))
-bird_sco <- data.frame(scores(birds_pca, display="sites"))
-bird_sco <- mutate(bird_sco, group_code = str_sub(birds_mfcc[, 1],
-                                                  1, as.vector(regexpr("\\-[^\\-]*$",
-                                                                       birds_mfcc[, 1]))-1))       
-ggplot(bird_sco, aes(x=PC1, y=PC2, colour=group_code)) +
-  geom_point()
+# birds_mfcc <- birds_mfcc[!is.nan(rowSums(birds_mfcc[,-1])),]
+# 
+# birds_pca <- rda(birds_mfcc[, -1], scale = TRUE)
+# head(summary(birds_pca))
+# bird_sco <- data.frame(scores(birds_pca, display="sites"))
+# bird_sco <- mutate(bird_sco, group_code = str_sub(birds_mfcc[, 1],
+#                                                   1, as.vector(regexpr("\\-[^\\-]*$",
+#                                                                        birds_mfcc[, 1]))-1))       
+# ggplot(bird_sco, aes(x=PC1, y=PC2, colour=group_code)) +
+#   geom_point()
 
 
 # Compare with d and dd
@@ -117,9 +120,9 @@ print(birds_rf)
 
 
 # Create .wav files with one, two or three calls
-input.dir1 <- paste0(SONG_DIR, "blackbird")
-input.dir2 <- paste0(SONG_DIR, "chiffchaff")
-input.dir3 <- paste0(SONG_DIR, "wren")
+input.dir1 <- paste0(SONG_DIR, sppA_name)
+input.dir2 <- paste0(SONG_DIR, sppB_name)
+input.dir3 <- paste0(SONG_DIR, sppC_name)
 seed=123
 nrand.in=100
 output.dir1 <- paste0(SONG_DIR, "one")
