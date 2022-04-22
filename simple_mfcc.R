@@ -178,3 +178,52 @@ mix_rf <- randomForest(y=as.factor(mix_grps_train), x = mix_mfcc_train,
                          ntree = 100,
                          ytest=as.factor(mix_grps_valid), xtest=mix_mfcc_valid)
 print(mix_rf)
+
+
+# Explore how well sound indices from warbleR spectro_analysis work
+# Create a data.frame with columns suitable for selection table input
+sel_df <- data.frame(sound.files = list.files(paste0(SONG_DIR, "mixture"),
+                                              full.names = TRUE),
+                     channel     = rep(1, length(list.files(paste0(SONG_DIR,
+                                                                   "mixture")))),
+                     selec       = rep(1, length(list.files(paste0(SONG_DIR,
+                                                                   "mixture")))),
+                     start       = rep(0, length(list.files(paste0(SONG_DIR,
+                                                                   "mixture")))),
+                     end         = rep(5, length(list.files(paste0(SONG_DIR,
+                                                                   "mixture")))),
+                     bottom.freq = rep(0, length(list.files(paste0(SONG_DIR,
+                                                                   "mixture")))),
+                     top.freq    = rep(10, length(list.files(paste0(SONG_DIR,
+                                                                   "mixture")))))
+mix_sel <- selection_table(X = sel_df, extended = TRUE)
+mix_stats <- spectro_analysis(mix_sel, parallel = 4)
+
+# Set up for training and validation
+set.seed(123)
+inds <- splitTools::partition(1:nrow(mix_stats), p=c(train = 0.7, valid = 0.3)) # test optional
+u_char <- stringr::str_locate(mix_stats[, 1], "_")[,1]
+group_code <- NULL
+for(i in 1:length(u_char)){
+  if(u_char[i] == 2)
+    group_code <- c(group_code, "one")
+  if(u_char[i] == 3)
+    group_code <- c(group_code, "two")
+  if(u_char[i] == 4)
+    group_code <- c(group_code, "three")
+}
+
+mix_stats_train <- mix_stats[inds$train, -(1:3)]
+mix_grps_train <- factor(group_code[inds$train], levels = c("one", "two", "three"))
+mix_stats_valid <- mix_stats[inds$valid, -(1:3)]
+mix_grps_valid <- factor(group_code[inds$valid], levels = c("one", "two", "three"))
+
+# Random forest on sound statistics
+mix_stats_train <- scale(mix_stats_train) # do we need to rescale??
+mix_stats_valid <- scale(mix_stats_valid)
+
+mix_stats_rf <- randomForest::randomForest(y=as.factor(mix_grps_train), x = mix_stats_train,
+                       ntree = 100,
+                       ytest=as.factor(mix_grps_valid), xtest=mix_stats_valid)
+print(mix_stats_rf)
+
