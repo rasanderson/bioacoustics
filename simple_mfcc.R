@@ -15,7 +15,7 @@ source("audio_fn.R")
 
 SONG_DIR <- "datasets/xeno_canto/"
 
-sppA_name <- "Turdus merula"
+sppA_name <- "Chloris chloris" #"Turdus merula"
 sppB_name <- "Phylloscopus collybita"
 sppC_name <- "Troglodytes troglodytes"
 sppA <- query_xc(qword = paste(sppA_name, ' type:song len:5-25'), download = FALSE)
@@ -44,10 +44,17 @@ unwanted_mp3 <- dir(path=paste0(SONG_DIR, sppC_name), pattern="*.mp3")
 file.remove(paste0(SONG_DIR, sppC_name, "/", unwanted_mp3))
 
 
-sppA_wav <- readWave(paste0(SONG_DIR, sppA_name, "/Turdus-merula-243908.wav"))
+# sppA_wav <- readWave(paste0(SONG_DIR, sppA_name, "/Turdus-merula-243908.wav"))
+# sppA_wav
+# oscillo(sppA_wav)
+# my_spec(sound.wav = sppA_wav, Colors = "Colors", main = sppA_name)
+
+sppA_wav <- readWave(paste0(SONG_DIR, sppA_name, "/Chloris-chloris-25834.wav"))
 sppA_wav
-oscillo(sppA_wav)
+oscillo(sppA_wav, fastdisp = TRUE)
 my_spec(sound.wav = sppA_wav, Colors = "Colors", main = sppA_name)
+
+
 sppC_wav <- readWave(paste0(SONG_DIR, sppC_name, "/Troglodytes-troglodytes-642879.wav"))
 sppC_wav
 oscillo(sppC_wav)
@@ -56,6 +63,8 @@ my_spec(sound.wav = sppC_wav, Colors = "Colors", main = sppC_name, max.freq=1000
 
 # Copy files into a single folder
 dir.create(file.path(paste0(SONG_DIR, "for_analysis")), recursive = TRUE)
+unwanted_wav <- dir(path=paste0(SONG_DIR, "for_analysis", "/"), pattern="*.wav")
+file.remove(paste0(SONG_DIR, "for_analysis", "/", unwanted_wav))
 file.copy(from=paste0(paste0(SONG_DIR, sppA_name, "/"),
                       list.files(paste0(SONG_DIR, sppA_name))),
           to=paste0(SONG_DIR, "for_analysis"))
@@ -89,10 +98,10 @@ birds_mfcc <- my_mfcc(input.dir = paste0(SONG_DIR, "for_analysis"),
 # Remove any NaNs (usually silence in a broken recording)
 birds_mfcc <- birds_mfcc[!is.nan(rowSums(birds_mfcc[,-1])),]
 
-birds_pca <- rda(birds_mfcc[, -1], scale = TRUE)
+birds_pca <- vegan::rda(birds_mfcc[, -1], scale = TRUE)
 head(summary(birds_pca))
-bird_sco <- data.frame(scores(birds_pca, display="sites"))
-bird_sco <- mutate(bird_sco, group_code = str_sub(birds_mfcc[, 1],
+bird_sco <- data.frame(vegan::scores(birds_pca, display="sites"))
+bird_sco <- dplyr::mutate(bird_sco, group_code = stringr::str_sub(birds_mfcc[, 1],
                                                   1, as.vector(regexpr("\\-[^\\-]*$",
                                                                        birds_mfcc[, 1]))-1))       
 ggplot(bird_sco, aes(x=PC1, y=PC2, colour=group_code)) +
@@ -130,12 +139,22 @@ output.dir2 <- paste0(SONG_DIR, "two")
 output.dir3 <- paste0(SONG_DIR, "three")
 n.sec <- 5
 samp.rate <- 44100
+unwanted_wav <- dir(path=paste0(output.dir1, "/"), pattern="*.wav")
+file.remove(paste0(output.dir1, "/", unwanted_wav))
+unwanted_wav <- dir(path=paste0(output.dir2, "/"), pattern="*.wav")
+file.remove(paste0(output.dir2, "/", unwanted_wav))
+unwanted_wav <- dir(path=paste0(output.dir3, "/"), pattern="*.wav")
+file.remove(paste0(output.dir3, "/", unwanted_wav))
+
 rnd_mix(input.dir1=input.dir1, input.dir2=input.dir2, input.dir3=input.dir3,
         output.dir1=output.dir1, output.dir2=output.dir2, output.dir3=output.dir3,
         n.sec=5, nrand.in=nrand.in)
 
 # Copy mixture files into single folder for mfcc
 dir.create(file.path(paste0(SONG_DIR, "mixture")), recursive = TRUE)
+unwanted_wav <- dir(path=paste0(SONG_DIR, "mixture", "/"), pattern="*.wav")
+file.remove(paste0(SONG_DIR, "mixture", "/", unwanted_wav))
+
 file.copy(from=paste0(paste0(SONG_DIR, "one/"),
                       list.files(paste0(SONG_DIR, "one"))),
           to=paste0(SONG_DIR, "mixture"))
