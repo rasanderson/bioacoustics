@@ -58,19 +58,6 @@ def get_features(list_values):
     statistics = calculate_statistics(list_values)
     return [entropy] + crossings + statistics
 
-def get_uci_har_features(dataset, labels, waveletname):
-    uci_har_features = []
-    for signal_no in range(0, len(dataset)):
-        features = []
-        for signal_comp in range(0,dataset.shape[2]):
-            signal = dataset[signal_no, :, signal_comp]
-            list_coeff = pywt.wavedec(signal, waveletname)
-            for coeff in list_coeff:
-                features += get_features(coeff)
-        uci_har_features.append(features)
-    X = np.array(uci_har_features)
-    Y = np.array(labels)
-    return X, Y
 
 def get_train_test(df, y_col, x_cols, ratio):
     """ 
