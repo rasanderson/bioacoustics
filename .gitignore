@@ -39,3 +39,6 @@ vignettes/*.pdf
 .Renviron
 
 datasets/*
+
+# HTML files from Rmarkdown
+*.html
