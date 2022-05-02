@@ -102,6 +102,11 @@ plt.show()
 time = np.linspace(0, 1, num=2048)
 chirp_signal = np.sin(250 * np.pi * time**2)
 
+import librosa
+audio = 'datasets/xeno_canto/one/a_2.wav'
+y, sr = librosa.load(audio)
+chirp_signal = y
+
 (cA1, cD1) = pywt.dwt(chirp_signal, 'db2', 'smooth')
 (cA2, cD2) = pywt.dwt(cA1, 'db2', 'smooth')
 (cA3, cD3) = pywt.dwt(cA2, 'db2', 'smooth')
@@ -140,6 +145,7 @@ plt.show()
 ```{python}
 time = np.linspace(0, 1, num=2048)
 chirp_signal = np.sin(250 * np.pi * time**2)
+chirp_signal = y
 
 coefficients_level1 = pywt.wavedec(chirp_signal, 'db2', 'smooth', level=1)
 coefficients_level2 = pywt.wavedec(chirp_signal, 'db2', 'smooth', level=2)
@@ -185,9 +191,9 @@ ax5a = fig.add_subplot(spec[5, 0])
 ax5b = fig.add_subplot(spec[5, 1])
 axarr = np.array([[ax1a, ax1b],[ax2a, ax2b],[ax3a, ax3b],[ax4a, ax4b],[ax5a, ax5b]])
 
-time = np.linspace(0, 1, num=2048)
+time = np.linspace(0, 1, num=110250)
 chirp_signal = np.sin(250 * np.pi * time**2)
-
+chirp_signal = y
 
 # First we reconstruct a signal using pywt.wavedec() as we have also done at #4.2
 coefficients_level1 = pywt.wavedec(chirp_signal, 'db2', 'smooth', level=1)
